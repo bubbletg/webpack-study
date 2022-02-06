@@ -1,0 +1,4 @@
+@import './bg.css';
+div {
+  background-color: red;
+}
