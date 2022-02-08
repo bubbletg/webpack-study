@@ -13,6 +13,15 @@ module.exports = (env) => {
     },
     module: {
       rules: [
+        // {
+        //   test: /\.jsx?$/,
+        //   loader: 'eslint-loader', // This loader has been deprecated. Please use eslint-webpack-plugin
+        //   enforce: 'pre',
+        //   options: {
+        //     fix: true,
+        //   },
+        //   exclude: /node_modules/, // 对于
+        // },
         {
           test: /\.jsx?$/,
           use: {
@@ -92,6 +101,27 @@ module.exports = (env) => {
       }),
       new webpack.DefinePlugin({
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
+      }),
+      // 不让 webpack 生成 sourcemap
+      new webpack.SourceMapDevToolPlugin({
+        // 会在打包后文件的尾部添加一行这样的文件
+        append: `\n//# sourceMappingURL=http://127.0.0.1:8080/[url]`,
+      }),
+      // 文件管理插件，可以帮我们拷贝文件。
+      new FileManagerPlugin({
+        events: {
+          onEnd: {
+            copy: [ // 拷贝
+              {
+                source: './dist/*.map', // 要拷贝的文件
+                destination: '/dist/', // 拷贝的目录
+              },
+            ],
+            delete: [ // 删除
+
+            ]
+          },
+        },
       }),
     ],
   };
