@@ -2,6 +2,10 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const webpack = require('webpack');
 const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+
+/** @type {import('webpack').Configuration} */
 module.exports = (env) => {
   return {
     mode: process.env.NODE_ENV,
@@ -11,6 +15,12 @@ module.exports = (env) => {
       filename: '[name].js',
       publicPath: '',
     },
+    // watch: true, // 添加监控模式
+    // watchOptions: {
+    //   ignored: /node_modules/, // 忽略的文件夹
+    //   aggregateTimeout: 300, //监听到变化发生后会等300再去执行 其实是一个防抖的优化
+    //   poll: 1000,
+    // },
     // exports: {
     //   loader: '_', // 如果在模块内部引用了lodash这个模块，会从window._ 上取值
     //   jquery: 'jQuery', //如果在模块内部引用了jquery这个模块，会从window.jQuery上取值
@@ -124,6 +134,17 @@ module.exports = (env) => {
             globalName: '_',
           },
         ],
+      }),
+      new CopyWebpackPlugin({
+        patterns: [
+          {
+            from: path.resolve(__dirname, 'src/design'),
+            to: path.resolve(__dirname, 'dist/design'),
+          },
+        ],
+      }),
+      new CleanWebpackPlugin({
+        cleanOnceBeforeBuildPattern: '**/.*',
       }),
       // // 不让 webpack 生成 sourcemap
       // new webpack.SourceMapDevToolPlugin({
