@@ -27,6 +27,9 @@
     "webpack-dev-server": "^4.7.4"
   },
   "dependencies": {
-    "html-webpack-plugin": "^5.5.0"
+    "expose-loader": "^3.1.0",
+    "html-webpack-externals-plugin": "^3.8.0",
+    "html-webpack-plugin": "^5.5.0",
+    "lodash": "^4.17.21"
   }
 }
