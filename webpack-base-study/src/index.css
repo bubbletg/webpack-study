@@ -1,4 +1,16 @@
+*{
+  padding: 0;
+  margin:0;
+}
+
+#root{
+  width: 100vw;
+  height:750px;
+  box-sizing: border-box;
+}
+
 @import './bg.css';
 div {
   background-color: red;
+  /* transform: translateX(10%); */
 }

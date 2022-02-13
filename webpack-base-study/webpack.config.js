@@ -4,16 +4,25 @@ const webpack = require('webpack');
 const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
+const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 
 /** @type {import('webpack').Configuration} */
 module.exports = (env) => {
   return {
-    mode: process.env.NODE_ENV,
+    mode: 'none',
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
-      filename: '[name].js',
+      filename: '[name]].[hash].js',
       publicPath: '',
+    },
+    optimization: {
+      minimize: true, // 启动最小优化
+      minimizer: [
+        new TerserPlugin(), // 压缩js
+      ],
     },
     // watch: true, // 添加监控模式
     // watchOptions: {
@@ -81,9 +90,7 @@ module.exports = (env) => {
         {
           test: /\.css$/,
           use: [
-            {
-              loader: 'style-loader',
-            },
+            MiniCssExtractPlugin.loader,
             {
               loader: 'css-loader',
               options: {
@@ -95,15 +102,23 @@ module.exports = (env) => {
                 sourceMap: false,
               },
             },
+            'postcss-loader',
+            {
+              loader: 'px2rem-loader',
+              options: {
+                remUnit: 75, // 一个rem 是多少个像素
+                remPrecision: 8, //精度
+              },
+            },
           ],
         },
         {
           test: /\.less$/,
-          use: ['style-loader', 'css-loader', 'less-loader'],
+          use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'less-loader'],
         },
         {
           test: /\.scss$/,
-          use: ['style-loader', 'css-loader', 'sass-loader'],
+          use: [MiniCssExtractPlugin.loader, 'css-loader', 'postcss-loader', 'sass-loader'],
         },
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
@@ -130,7 +145,13 @@ module.exports = (env) => {
       new HtmlWebpackPlugin({
         template: './src/index.html',
         filename: 'index.html',
+        minify: {
+          // 压缩html
+          collapseWhitespace: true, //
+          removeComments: true, //
+        },
       }),
+      new OptimizeCssAssetsWebpackPlugin(), // 压缩css
       new webpack.DefinePlugin({
         NODE_ENV: JSON.stringify(process.env.NODE_ENV),
       }),
@@ -153,6 +174,9 @@ module.exports = (env) => {
       }),
       new CleanWebpackPlugin({
         cleanOnceBeforeBuildPattern: '**/.*',
+      }),
+      new MiniCssExtractPlugin({
+        filename: '[name].[hash].css',
       }),
       // // 不让 webpack 生成 sourcemap
       // new webpack.SourceMapDevToolPlugin({

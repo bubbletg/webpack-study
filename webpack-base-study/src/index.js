@@ -1,7 +1,7 @@
 import './index.css';
 import './01.less';
 import './02.scss';
-
+import 'lib-flexible';
 
 // import _ from 'lodash'
 // require('lodash');
