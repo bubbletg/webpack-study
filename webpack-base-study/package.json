@@ -30,8 +30,10 @@
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^10.2.4",
     "expose-loader": "^3.1.0",
+    "express": "^4.17.2",
     "html-webpack-externals-plugin": "^3.8.0",
     "html-webpack-plugin": "^5.5.0",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "webpack-dev-middleware": "^5.3.1"
   }
 }

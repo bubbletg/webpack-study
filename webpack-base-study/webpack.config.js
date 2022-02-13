@@ -25,6 +25,21 @@ module.exports = (env) => {
     //   loader: '_', // 如果在模块内部引用了lodash这个模块，会从window._ 上取值
     //   jquery: 'jQuery', //如果在模块内部引用了jquery这个模块，会从window.jQuery上取值
     // },
+    devServer: {
+      hot: true, // 配置模块热更新
+      // contentBase: path.resolve(__dirname, 'public'),
+      compress: true, // 启动 压缩 gzip
+      port: 8081, //
+      open: true, //
+      proxy: {
+        '/api': {
+          target: 'http://localhost:30001',
+          pathRewrite: {
+            '^/api': '',
+          },
+        },
+      },
+    },
     module: {
       rules: [
         // {
@@ -109,13 +124,6 @@ module.exports = (env) => {
           loader: 'html-loader',
         },
       ],
-    },
-    devServer: {
-      // 配置额外的静态根目录
-      // contentBase: path.resolve(__dirname, 'public'),
-      compress: true, // 启动 gzip 压缩
-      port: 8080,
-      // open: true,
     },
     plugins: [
       // 生成一个 index.html 文件，插入脚本
