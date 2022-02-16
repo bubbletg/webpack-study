@@ -5,6 +5,7 @@ const HtmlWebpackExternalsPlugin = require('html-webpack-externals-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 
 /** @type {import('webpack').Configuration} */
@@ -17,8 +18,26 @@ module.exports = (env) => {
       filename: '[name]].[hash].js',
       publicPath: '',
     },
+    // optimization: {
+    //   minimize: true, // 启动最小优化
+    //   minimizer: [
+    //     new TerserPlugin(), // 压缩js
+    //   ],
+    // },
+
+    // watch: true, // 添加监控模式
+    // watchOptions: {
+    //   ignored: /node_modules/, // 忽略的文件夹
+    //   aggregateTimeout: 300, //监听到变化发生后会等300再去执行 其实是一个防抖的优化
+    //   poll: 1000,
+    // },
+    // exports: {
+    //   loader: '_', // 如果在模块内部引用了lodash这个模块，会从window._ 上取值
+    //   jquery: 'jQuery', //如果在模块内部引用了jquery这个模块，会从window.jQuery上取值
+    // },
     devServer: {
       hot: true, // 配置模块热更新
+      // contentBase: path.resolve(__dirname, 'public'),
       compress: true, // 启动 压缩 gzip
       port: 8081, //
       open: true, //
@@ -33,6 +52,25 @@ module.exports = (env) => {
     },
     module: {
       rules: [
+        // {
+        //   test: require.resolve('lodash'),
+        //   loader: 'expose-loader',
+        //   options: {
+        //     exposes: {
+        //       globalName: '_',
+        //       override: true,
+        //     },
+        //   },
+        // },
+        // {
+        //   test: /\.jsx?$/,
+        //   loader: 'eslint-loader', // This loader has been deprecated. Please use eslint-webpack-plugin
+        //   enforce: 'pre',
+        //   options: {
+        //     fix: true,
+        //   },
+        //   exclude: /node_modules/, // 对于
+        // },
         {
           test: /\.jsx?$/,
           use: {
@@ -40,30 +78,15 @@ module.exports = (env) => {
             options: {
               presets: [
                 [
-                  '@babel/preset-env', // 只转换语法，不转换方法
-                  // 使用  @babel/plugin-transform-runtime 就不用使用 useBuiltIns
-                  // {
-                  //   /**
-                  //    * useBuiltIns 如果不设置，@babel/preset-env 只转化最新ES语法,不转化最新ES API,最新ES实例方
-                  //    * 如果设置为 false 此时不对polyll做操作。如果引入@babe/polyfll ，则无视配置的浏览器兼容，引入所有的polyfll
-                  //    */
-                  //   useBuiltIns: 'usage',
-                  //   corejs: {
-                  //     version:3
-                  //   },
-                  // },
+                  '@babel/preset-env',
+                  {
+                    useBuiltIns: false, // 如果不设置，@babel/preset-env 只转化最新ES语法,不转化最新ES API,最新ES实例方
+                  },
                 ],
                 '@babel/preset-react',
               ],
               plugins: [
-                [
-                  '@babel/plugin-transform-runtime',
-                  {
-                    corejs: 3, // 匹配corejs 可以转换API和方法
-                    helpers: false,
-                    regenerator: false, // 是否开启 generator 函数转换成 regenerator-runtime 来避免污染全局作用域
-                  },
-                ][('@babel/plugin-proposal-decorators', { legacy: true })], // legacy 旧的意思
+                ['@babel/plugin-proposal-decorators', { legacy: true }], // legacy 旧的意思
                 ['@babel/plugin-proposal-class-properties', { loose: true }], // loose 松散的意思
               ],
             },
@@ -109,6 +132,16 @@ module.exports = (env) => {
         {
           test: /\.(png|svg|jpg|jpeg|gif)$/i,
           type: 'asset/resource',
+          // use: [
+          //   {
+          //     loader: 'url-loader',
+          //     options: {
+          //       name: '[hash:10].[ext]',
+          //       esModule: false, // 是否包装成一个 ES6 模块
+          //       limit: 8*1024,
+          //     },
+          //   },
+          // ],
         },
         {
           test: /\.html$/,
@@ -149,11 +182,36 @@ module.exports = (env) => {
         ],
       }),
       new CleanWebpackPlugin({
-        cleanOnceBeforeBuildPattern: '**/*.*',
+        cleanOnceBeforeBuildPattern: '**/.*',
       }),
       new MiniCssExtractPlugin({
         filename: '[name].[hash].css',
       }),
+      // // 不让 webpack 生成 sourcemap
+      // new webpack.SourceMapDevToolPlugin({
+      //   // 会在打包后文件的尾部添加一行这样的文件
+      //   append: `\n//# sourceMappingURL=http://127.0.0.1:8080/[url]`,
+      // }),
+      // // 文件管理插件，可以帮我们拷贝文件。
+      // new FileManagerPlugin({
+      //   events: {
+      //     onEnd: {
+      //       copy: [ // 拷贝
+      //         {
+      //           source: './dist/*.map', // 要拷贝的文件
+      //           destination: '/dist/', // 拷贝的目录
+      //         },
+      //       ],
+      //       delete: [ // 删除
+
+      //       ]
+      //     },
+      //   },
+      // }),
+      // // 自动动向模块内部注入lodash模块，在模块内部可以通过_引用
+      // new webpack.ProvidePlugin({
+      //   _: 'lodash',
+      // }),
     ],
   };
 };
