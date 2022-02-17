@@ -1,3 +1,5 @@
+
+export default 'title_name~~~~~';
 /**
  * 使用 esModule 导出
  * export default 'title_defalut'
@@ -15,7 +17,7 @@
 // exports.name = 'title_name';
 // exports.age = 'title_age';
 
-module.exports = {
-  name: 'title_name',
-  age: 'title_age',
-};
+// module.exports = {
+//   name: 'title_name',
+//   age: 'title_age',
+// };
