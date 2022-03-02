@@ -8,9 +8,11 @@
     "serve": "webpack serve"
   },
   "dependencies": {
+    "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
     "loader-runner": "^4.2.0",
     "loader-utils": "^3.2.0",
+    "url-loader": "^4.1.1",
     "webpack-dev-server": "^4.7.4"
   },
   "devDependencies": {

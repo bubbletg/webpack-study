@@ -4,6 +4,10 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   mode: 'development',
   entry: './src/index.js',
+  devtool: 'source-map',
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+  },
   resolveLoader: {
     // 使用别名
     alias: {
@@ -22,8 +26,22 @@ module.exports = {
            */
           {
             loader: 'babel-loader',
-            options: { // options 在loader 中可以通过 this.getOptions 拿到
+            options: {
+              // options 在loader 中可以通过 this.getOptions 拿到
               presets: ['@babel/preset-env'],
+            },
+          },
+        ],
+      },
+      {
+        test: /(jpg|png|gif|bmp|jpeg)$/,
+        use: [
+          {
+            loader: 'url-loader2',
+            options: {
+              // filename: '[hash].[ext]',
+              limit: 1024 * 10,
+              fallback:path.resolve(__dirname, 'webpack-loader/file-loader2.js')
             },
           },
         ],
