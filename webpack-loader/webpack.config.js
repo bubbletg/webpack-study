@@ -41,10 +41,14 @@ module.exports = {
             options: {
               // filename: '[hash].[ext]',
               limit: 1024 * 10,
-              fallback:path.resolve(__dirname, 'webpack-loader/file-loader2.js')
+              fallback: path.resolve(__dirname, 'webpack-loader/file-loader2.js'),
             },
           },
         ],
+      },
+      {
+        test: /\.less$/,
+        use: ['style-loader2', 'less-loader2'],
       },
     ],
   },
