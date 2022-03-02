@@ -2,13 +2,14 @@
  * loader 的分类和顺序
  * pre 前置
  * normal 正常/普通
- * inline 行为
+ * inline 行内
  * post 后置
  */
 
 let path = require('path');
 let fs = require('fs');
-let runLoaders = require('./loader-runner')
+// let { runLoaders } = require('loader-runner');
+let {runLoaders} = require('./loader-runner');
 let filePath = path.resolve(__dirname, 'src', 'index.js');
 let request = `inline-loader!inline2-loader!${filePath}`;
 
@@ -53,10 +54,10 @@ for (let i = 0; i < rules.length; i++) {
     }
   }
 }
-// inlineLoader = parts.map(resourceLoader);
-// preLoaders = preLoaders.map(resourceLoader);
-// normalLoaders = normalLoaders.map(resourceLoader);
-// postLoaders = postLoaders.map(resourceLoader);
+inlineLoader = parts.map(resourceLoader);
+preLoaders = preLoaders.map(resourceLoader);
+normalLoaders = normalLoaders.map(resourceLoader);
+postLoaders = postLoaders.map(resourceLoader);
 
 let loaders = [];
 if (request.startsWith('!!')) {
@@ -70,7 +71,7 @@ if (request.startsWith('!!')) {
 }
 
 // console.log(loaders);
-
+debugger;
 runLoaders(
   {
     resource, // 要加载和转换的模块

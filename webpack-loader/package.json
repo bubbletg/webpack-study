@@ -2,5 +2,8 @@
   "name": "webpack-loader",
   "version": "1.0.0",
   "main": "index.js",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "loader-runner": "^4.2.0"
+  }
 }
