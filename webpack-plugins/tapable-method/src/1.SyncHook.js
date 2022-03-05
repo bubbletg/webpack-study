@@ -1,4 +1,5 @@
-const { SyncHook } = require('tapable');
+const { SyncHook } = require('../../tapable');
+debugger
 let syncHook = new SyncHook(['name', 'age']);
 syncHook.tap('1', (name, age) => {
   console.log("🚀 ~ file: 1.SyncHook.js ~ line 4 ~ syncHook.tap ~ '1'", name, age);
