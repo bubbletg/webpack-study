@@ -7,12 +7,16 @@ class Hook {
     this.taps = [];
     this.call = CALL_DELEGATE;
     this.callAsync = CALL_ASYNC_DELEGATE
+    this.callPromise = CALL_PROMISE_DELEGATE
   }
   tap(options, fn) {
     this._tap("sync", options, fn);
   }
   tapAsync(options,fn){
     this._tap('async',options,fn)
+  }
+  tapPromise(options,fn){
+    this._tap('promise',options,fn)
   }
   _tap(type, options, fn) {
     if (typeof options === "string") {
@@ -51,5 +55,10 @@ const CALL_ASYNC_DELEGATE = function(...args) {
   this.callAsync = this._createCall('async');
   return this.callAsync(...args)
 }
+const CALL_PROMISE_DELEGATE = function(...args) {
+  this.callPromise = this._createCall('promise');
+  return this.callPromise(...args)
+}
+
 
 module.exports  = Hook

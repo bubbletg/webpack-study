@@ -3,8 +3,8 @@ let HookCodeFactory = require('./HookCodeFactory')
 
 
 class AsyncParallelHookCodeFactory extends HookCodeFactory{
-  content(){
-    return this.callTapParallel()// 异步钩子
+  content({onDone}){
+    return this.callTapParallel({onDone})// 异步钩子
   }
 }
 

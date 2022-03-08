@@ -38,11 +38,11 @@ class HookCodeFactory {
     }
     return code;
   }
-  callTapParallel() {
+  callTapParallel({ onDone }) {
     let { taps } = this.options;
     if (taps.length === 0) return;
     let code = `var _counter = ${taps.length}\n`;
-    code + `var _done = (function(){ \n_callback();\n});`;
+    code + `var _done = (function(){ \n ${onDone()}; \n});`;
     for (let j = 0; j < taps.length; j++) {
       const content = this.callTap(j);
       code += content;
@@ -64,6 +64,12 @@ class HookCodeFactory {
           if(--_counter ===0) _done();
         });`;
         break;
+      case "promise":
+        code += `var _promise${tapIndex} = _fn${tapIndex}(${this.args()},
+        _promise${tapIndex}).then((function(){
+          if(--_counter ===0) _done();
+        }));`;
+        break;
     }
     return code;
   }
@@ -78,8 +84,22 @@ class HookCodeFactory {
       case "async":
         fn = new Function(
           this.args({ after: "_callback" }),
-          this.header() + this.content()
+          this.header() +
+            this.content({
+              oneDone: () => `_callback();\n`,
+            })
         );
+        break;
+      case "promise":
+        let tapsContent = this.content({
+          onDone: () => `_resolve();\n`,
+        });
+        let content = `
+        return new Promise((function(_resolve,_reject){
+          ${tapsContent}
+        }));
+        `;
+        fn = new Function(this.args(), this.header() + content);
         break;
     }
     return fn;
