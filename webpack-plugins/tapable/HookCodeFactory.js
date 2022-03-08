@@ -24,6 +24,17 @@ class HookCodeFactory {
   header() {
     let code = ``;
     code += `var _x = this._x;`;
+    // call 拦截器
+    let { interceptors = [] } = this.options;
+    if (interceptors.length > 0) {
+      code += ` var _taps = this.taps;\n
+     var _interceptors = this.interceptors;`;
+      for (let i = 0; i < interceptors.length; i++) {
+        if (interceptors[i].call) {
+          code += `_interceptors[${i}].call(${this.args()});`;
+        }
+      }
+    }
     return code;
   }
 
@@ -54,6 +65,17 @@ class HookCodeFactory {
   callTap(tapIndex) {
     let code = "";
     code += `var _fn${tapIndex} = _x[${tapIndex}];\n`;
+    // tap 拦截器
+    let { interceptors = [] } = this.options;
+    if (interceptors.length > 0) {
+      for (let i = 0; i < interceptors.length; i++) {
+        if (interceptors[i].tap) {
+          code += `var _tap${i} = _taps[${i}];\n
+          _interceptors[${i}].tap(_tap${i});\n`;
+        }
+      }
+    }
+
     let tap = this.options.taps[tapIndex];
     switch (tap.type) {
       case "sync":
