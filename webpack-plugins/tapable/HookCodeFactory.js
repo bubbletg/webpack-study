@@ -21,31 +21,49 @@ class HookCodeFactory {
     return allArgs.join(",");
   }
 
-  header(){
+  header() {
     let code = ``;
-    code += `var _x = this._x;`
+    code += `var _x = this._x;`;
     return code;
   }
 
-  callTapsSeries(){
-    let {taps} = this.options;
-    if(taps.length ===0) return ''
-    let code = ''
+  callTapsSeries() {
+    let { taps } = this.options;
+    if (taps.length === 0) return "";
+    let code = "";
 
-    for(let j=0;j<taps.length;j++){
-      const content = this.callTap(j)
-      code +=content;
+    for (let j = 0; j < taps.length; j++) {
+      const content = this.callTap(j);
+      code += content;
     }
     return code;
   }
+  callTapParallel() {
+    let { taps } = this.options;
+    if (taps.length === 0) return;
+    let code = `var _counter = ${taps.length}\n`;
+    code + `var _done = (function(){ \n_callback();\n});`;
+    for (let j = 0; j < taps.length; j++) {
+      const content = this.callTap(j);
+      code += content;
+    }
 
-  callTap(tapIndex){
-    let code ='';
+    return code;
+  }
+
+  callTap(tapIndex) {
+    let code = "";
     code += `var _fn${tapIndex} = _x[${tapIndex}];\n`;
     let tap = this.options.taps[tapIndex];
-    switch(tap.type){
-      case 'sync':
-        code += `_fn${tapIndex}(${this.args()});`
+    switch (tap.type) {
+      case "sync":
+        code += `_fn${tapIndex}(${this.args()});`;
+        break;
+      case "async":
+        code += `_fn${tapIndex}(${this.args()},function(){
+          if(--_counter ===0) _done();
+        });`;
+        break;
     }
     return code;
   }
@@ -56,10 +74,16 @@ class HookCodeFactory {
     switch (this.options.type) {
       case "sync":
         fn = new Function(this.args(), this.header() + this.content());
+        break;
+      case "async":
+        fn = new Function(
+          this.args({ after: "_callback" }),
+          this.header() + this.content()
+        );
+        break;
     }
     return fn;
   }
 }
-
 
 module.exports = HookCodeFactory;
