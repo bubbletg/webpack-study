@@ -49,7 +49,8 @@ class HookCodeFactory {
   //   }
   //   return code;
   // }
-  callTapsSeries({ onDone }) {
+  callTapsSeries(config = {}) {
+    let { onDone = () => "" } = config;
     let { taps } = this.options;
     if (taps.length === 0) return onDone;
     let code = ``;
