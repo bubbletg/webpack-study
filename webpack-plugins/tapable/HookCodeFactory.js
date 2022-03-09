@@ -52,11 +52,12 @@ class HookCodeFactory {
   callTapsSeries(config = {}) {
     let { onDone = () => "" } = config;
     let { taps } = this.options;
-    if (taps.length === 0) return onDone;
+    if (taps.length === 0) return onDone();
     let code = ``;
     let current = onDone;
     for (let i = taps.length - 1; i >= 0; i--) {
-      if (i < taps.length - 1) {
+      const unroll = current !== onDone && this.options.taps[i].type !== "sync";
+      if (unroll) {
         code += `function _next${i}(){\n`;
         code += current();
         code += `}\n`;
@@ -103,6 +104,7 @@ class HookCodeFactory {
     switch (tap.type) {
       case "sync":
         code += `_fn${tapIndex}(${this.args()});`;
+        code += onDone();
         break;
       case "async":
         code += `_fn${tapIndex}(${this.args({

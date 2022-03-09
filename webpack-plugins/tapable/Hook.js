@@ -47,11 +47,49 @@ class Hook {
   _resetCompilation() {
     this.call = CALL_DELEGATE;
   }
-  _;
+  
   _insert(tapInfo) {
     this._resetCompilation();
-    this.taps.push(tapInfo);
+    let stage = 0;
+
+    let before;
+    if (typeof tapInfo.before === "string") {
+      before = new Set([tapInfo.before]);
+    } else if (Array.isArray(tapInfo.before)) {
+      before = new Set(tapInfo.before);
+    }
+
+    if (typeof tapInfo.stage === "number") {
+      stage = tapInfo.stage;
+    }
+    let i = this.taps.length;
+    while (i > 0) {
+      i--;
+      const x = this.taps[i];
+      this.taps[i + 1] = x;
+      const XStage = x.stage || 0;
+      if (before) {
+        if (before.has(x.name)) {
+          // 已经存在了，删除已经存在的
+          before.delete(x.name);
+          continue;
+        }
+        if (before.size > 0) {
+          // 删除后，还大于 0，说明还没有找到放在之前的位置的元素
+          continue;
+        }
+      }
+      if (XStage > stage) {
+        continue;
+      }
+      i++;
+      break;
+    }
+    this.taps[i] = tapInfo;
+    //
+    // this.taps.push(tapInfo);
   }
+
   compile() {
     throw new Error("Abstract: should be override");
   }
@@ -59,7 +97,7 @@ class Hook {
     return this.compile({
       taps: this.taps,
       args: this.args,
-      interceptors:this.interceptors,
+      interceptors: this.interceptors,
       type,
     });
   }
