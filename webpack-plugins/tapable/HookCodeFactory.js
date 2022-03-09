@@ -38,31 +38,53 @@ class HookCodeFactory {
     return code;
   }
 
-  callTapsSeries() {
-    let { taps } = this.options;
-    if (taps.length === 0) return "";
-    let code = "";
+  // callTapsSeries() {
+  //   let { taps } = this.options;
+  //   if (taps.length === 0) return "";
+  //   let code = "";
 
-    for (let j = 0; j < taps.length; j++) {
-      const content = this.callTap(j);
-      code += content;
+  //   for (let j = 0; j < taps.length; j++) {
+  //     const content = this.callTap(j);
+  //     code += content;
+  //   }
+  //   return code;
+  // }
+  callTapsSeries({ onDone }) {
+    let { taps } = this.options;
+    if (taps.length === 0) return onDone;
+    let code = ``;
+    let current = onDone;
+    for (let i = taps.length - 1; i >= 0; i--) {
+      if (i < taps.length - 1) {
+        code += `function _next${i}(){\n`;
+        code += current();
+        code += `}\n`;
+        current = () => `_next${i}()`;
+      }
+      const done = current;
+      const content = this.callTap(i, { onDone: done });
+      current = () => content;
     }
+    code += current();
     return code;
   }
+
   callTapParallel({ onDone }) {
     let { taps } = this.options;
     if (taps.length === 0) return;
     let code = `var _counter = ${taps.length}\n`;
     code + `var _done = (function(){ \n ${onDone()}; \n});`;
     for (let j = 0; j < taps.length; j++) {
-      const content = this.callTap(j);
+      const content = this.callTap(j, {
+        onDone: ` if(--_counter ===0) _done();`,
+      });
       code += content;
     }
 
     return code;
   }
 
-  callTap(tapIndex) {
+  callTap(tapIndex, { onDone }) {
     let code = "";
     code += `var _fn${tapIndex} = _x[${tapIndex}];\n`;
     // tap 拦截器
@@ -82,9 +104,13 @@ class HookCodeFactory {
         code += `_fn${tapIndex}(${this.args()});`;
         break;
       case "async":
-        code += `_fn${tapIndex}(${this.args()},function(){
-          if(--_counter ===0) _done();
-        });`;
+        code += `_fn${tapIndex}(${this.args({
+          after: `
+            function(){
+              ${onDone()}
+            }
+            `,
+        })});`;
         break;
       case "promise":
         code += `var _promise${tapIndex} = _fn${tapIndex}(${this.args()},
@@ -108,7 +134,7 @@ class HookCodeFactory {
           this.args({ after: "_callback" }),
           this.header() +
             this.content({
-              oneDone: () => `_callback();\n`,
+              onDone: () => `_callback();\n`,
             })
         );
         break;
